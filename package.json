@@ -1,8 +1,8 @@
 {
-  "name": "electron-logger",
-  "productName": "electron-logger",
-  "version": "1.0.0",
-  "description": "My Electron application description",
+  "name": "LogTail",
+  "productName": "LogTail",
+  "version": "0.1.0",
+  "description": "Basic electron app to tail a file that lets you filter output. Useful if you have one logfile and lots of different logwriters.",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",

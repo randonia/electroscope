@@ -2,9 +2,78 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>LogTail</title>
+    <style type="text/css">
+    /* 
+     * Blue Colors
+     *   304B52
+     *   476E78
+     *   568592
+     *   83CBDE
+     *   8EDCF1
+     */
+    html {
+      background-color: #304B52;
+      color: #eeeeee;
+      display: inline-block;
+      font-family: Tahoma;
+      font-size: 14px;
+    }
+    .div-row {
+      display: flex;
+      max-width: calc(100%);
+    }
+    .sort-row {
+      flex-direction: row;
+    }
+    .sort-col {
+      flex-direction: column;
+    }
+    .first {
+      background-color: #476E78;
+    }
+    .log {
+      background-color: #568592;
+      min-height: 50px;
+    }
+    .p-user-input {
+      margin: 0px;
+    }
+    .txt-input {
+      display: inline-block;
+      margin: 5px;
+      width: 100px;
+    }
+    .c-filters {
+      min-width: 500px;
+    }
+    .wide {
+      min-width: 500px;
+    }
+    </style>
   </head>
   <body>
-    Well hey there!!!
+    <div id="div-row-first" class="div-row sort-col first">
+      <div id="div-item-fileselect" class="div-container">
+        <p class="p-user-input">
+          <label>Path to logfile</label>
+          <input id="txt-selected-file" type="text" name="selected-file" class="txt-input wide"></input>
+          <button id="btn-load-selected-file">Load</button>
+        </p>
+      </div>
+      <div id="div-item-filters" class="div-container c-filters">
+        <p class="p-user-input">
+          Filters:
+          <input id="txt-input-filter" type="text" name="text-filter"></input>
+        </p>
+      </div>
+    </div>
+    <div id="div-row-log" class="div-row sort-col log">
+      <p>Log</p>
+      <div id="div-log-lines"></div>
+    </div>
   </body>
+<script type="text/javascript">
+  require('./LogReader.js');
+</script>
 </html>
