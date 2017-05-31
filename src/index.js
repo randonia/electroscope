@@ -3,6 +3,7 @@ import { app, BrowserWindow } from 'electron';
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+const DEBUG = false;
 
 const createWindow = () => {
   // Create the browser window.
@@ -15,7 +16,9 @@ const createWindow = () => {
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (DEBUG) {
+    mainWindow.webContents.openDevTools();
+  }
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
