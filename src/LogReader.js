@@ -1,6 +1,7 @@
 import { remote } from 'electron';
 import { Tail } from 'tail';
 
+const RE_MATCHER = /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}\.\d{2} <(error|info|debug)> \[/gm;
 // Check at half second intervals
 const TIMER = 500;
 const log = [];
@@ -8,6 +9,7 @@ const logLines = document.getElementById('div-log-lines');
 const filterLine = document.getElementById('txt-input-filter');
 const selectedFileInput = document.getElementById('txt-selected-file');
 
+let dirty = true;
 let tail;
 let pathToFile;
 
@@ -25,49 +27,73 @@ class Node {
     this.data.push(text.trim());
   }
   finish() {
-    return this.data.join('\n');
+    return this.data.join('\n').trim();
   }
 }
 
-function populateCurrNode() {
+function finishCurrNode() {
+  if (!currNode) {
+    return;
+  }
+  log.push(currNode.finish());
+}
+
+function addDataToCurrNode(data) {
+  if (!currNode) {
+    currNode = new Node(data);
+  } else {
+    if (data.match(RE_MATCHER)) {
+      finishCurrNode();
+      currNode = new Node();
+    }
+    currNode.addText(data);
+  }
+}
+
+function checkCurrNodeFinish() {
   if (currNode && lastAppend <= (Date.now() - TIMER)) {
     log.push(currNode.finish());
     lastAppend = Date.now();
     currNode = undefined;
+    dirty = true;
   }
 }
 
 function setFilters() {
-  const filterText = filterLine.value;
-  const filteredLogs = log.filter((item) => {
-    if (item.trim().length) {
-      return item.indexOf(filterText) !== -1;
-    }
-    return true;
-  });
-
-  logLines.innerHTML = '';
-  filteredLogs.forEach(
-    (item) => {
-      const newData = document.createElement('p');
-      newData.innerText = item;
-      logLines.prepend(newData);
+  if (dirty) {
+    const filterText = filterLine.value;
+    const filteredLogs = log.filter((item) => {
+      if (item.trim().length) {
+        return item.indexOf(filterText) !== -1;
+      }
+      return true;
     });
+
+    logLines.innerHTML = '';
+    filteredLogs.forEach(
+      (item) => {
+        const newData = document.createElement('p');
+        newData.setAttribute('class', 'log-line');
+        newData.innerText = item;
+        logLines.prepend(newData);
+      });
+    dirty = false;
+  }
 }
 
 function setUpTail(path) {
   if (tail) {
     tail.unwatch();
+    while (log.length) {
+      log.pop();
+    }
   }
   if (path.length) {
     tail = new Tail(path);
   }
   tail.on('line', (data) => {
-    if (!currNode) {
-      currNode = new Node(data);
-    } else {
-      currNode.addText(data);
-    }
+    dirty = true;
+    addDataToCurrNode(data);
     lastAppend = Date.now();
   });
 }
@@ -77,5 +103,7 @@ document.getElementById('btn-load-selected-file').onclick = () => {
   setUpTail(pathToFile);
 };
 
-setInterval(() => populateCurrNode(), 250);
-setInterval(() => setFilters(log), 250);
+setInterval(() => {
+  checkCurrNodeFinish();
+  setFilters(log);
+}, 250);
