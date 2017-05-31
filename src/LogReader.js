@@ -124,6 +124,13 @@ document.getElementById('txt-input-filter').onkeyup = () => {
   dirty = true;
 };
 
+document.getElementById('btn-clear-log').onclick = () => {
+  while (log.length) {
+    log.pop();
+  }
+  dirty = true;
+};
+
 setInterval(() => {
   checkCurrNodeFinish();
   setFilters(log);
