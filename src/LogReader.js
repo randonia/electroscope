@@ -1,7 +1,8 @@
 import { remote } from 'electron';
 import { Tail } from 'tail';
 
-const RE_MATCHER = /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}\.\d{2} <(error|info|debug)> \[/gm;
+const RE_LOG_MATCH = /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}\.\d{2} <(error|info|debug)> \[/gm;
+const RE_REGEX_MATCHER = /\/(.+)\/([gmiy]*)/;
 // Check at half second intervals
 const TIMER = 500;
 const log = [];
@@ -42,7 +43,7 @@ function addDataToCurrNode(data) {
   if (!currNode) {
     currNode = new Node(data);
   } else {
-    if (data.match(RE_MATCHER)) {
+    if (data.match(RE_LOG_MATCH)) {
       finishCurrNode();
       currNode = new Node();
     }
@@ -62,21 +63,37 @@ function checkCurrNodeFinish() {
 function setFilters() {
   if (dirty) {
     const filterText = filterLine.value;
-    const filteredLogs = log.filter((item) => {
-      if (item.trim().length) {
-        return item.indexOf(filterText) !== -1;
-      }
-      return true;
-    });
+    let matcher;
+    const defaultOpts = 'g';
+    // We've been passed RegEx
 
-    logLines.innerHTML = '';
-    filteredLogs.forEach(
-      (item) => {
-        const newData = document.createElement('p');
-        newData.setAttribute('class', 'log-line');
-        newData.innerText = item;
-        logLines.prepend(newData);
+    try {
+      if (filterText.startsWith('/') && filterText.match(RE_REGEX_MATCHER)) {
+        const [, matchedRegex, matchedOpts] = filterText.match(RE_REGEX_MATCHER);
+        matcher = new RegExp(matchedRegex, matchedOpts);
+      } else {
+        matcher = new RegExp(filterText, defaultOpts);
+      }
+      const filteredLogs = log.filter((item) => {
+        if (item.trim().length) {
+          return item.match(matcher);
+        }
+        return true;
       });
+      logLines.innerHTML = '';
+      filteredLogs.forEach(
+        (item) => {
+          const newData = document.createElement('p');
+          newData.setAttribute('class', 'log-line');
+          newData.innerText = item;
+          logLines.prepend(newData);
+        });
+    } catch (exception) {
+      // A poor handling of the bad regex
+      dirty = false;
+      return;
+    }
+
     dirty = false;
   }
 }
@@ -101,6 +118,10 @@ function setUpTail(path) {
 document.getElementById('btn-load-selected-file').onclick = () => {
   pathToFile = selectedFileInput.value.trim();
   setUpTail(pathToFile);
+};
+
+document.getElementById('txt-input-filter').onkeyup = () => {
+  dirty = true;
 };
 
 setInterval(() => {
