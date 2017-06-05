@@ -1,7 +1,7 @@
 import { remote } from 'electron';
 import { Tail } from 'tail';
 
-const RE_LOG_MATCH = /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}\.\d{2} <(error|info|debug)> \[/gm;
+const RE_DEFAULT_OPTS = 'g';
 const RE_REGEX_MATCHER = /\/(.+)\/([gmiy]*)/;
 // Check at half second intervals
 const TIMER = 500;
@@ -9,7 +9,9 @@ const log = [];
 const logLines = document.getElementById('div-log-lines');
 const filterLine = document.getElementById('txt-input-filter');
 const selectedFileInput = document.getElementById('txt-selected-file');
+const customLogFilterInput = document.getElementById('txt-custom-log-filter');
 
+let regexLogPrefix = /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}\.\d{2} <(error|info|debug|warn)> \[/m;
 let dirty = true;
 let tail;
 let pathToFile;
@@ -43,7 +45,7 @@ function addDataToCurrNode(data) {
   if (!currNode) {
     currNode = new Node(data);
   } else {
-    if (data.match(RE_LOG_MATCH)) {
+    if (data.match(regexLogPrefix)) {
       finishCurrNode();
       currNode = new Node();
     }
@@ -64,15 +66,12 @@ function setFilters() {
   if (dirty) {
     const filterText = filterLine.value;
     let matcher;
-    const defaultOpts = 'g';
-    // We've been passed RegEx
-
     try {
       if (filterText.startsWith('/') && filterText.match(RE_REGEX_MATCHER)) {
         const [, matchedRegex, matchedOpts] = filterText.match(RE_REGEX_MATCHER);
         matcher = new RegExp(matchedRegex, matchedOpts);
       } else {
-        matcher = new RegExp(filterText, defaultOpts);
+        matcher = new RegExp(filterText, RE_DEFAULT_OPTS);
       }
       const filteredLogs = log.filter((item) => {
         if (item.trim().length) {
@@ -84,7 +83,8 @@ function setFilters() {
       filteredLogs.forEach(
         (item) => {
           const newData = document.createElement('p');
-          newData.setAttribute('class', 'log-line');
+          const [, logStyle] = item.match(regexLogPrefix);
+          newData.setAttribute('class', `log-line ${logStyle}`);
           newData.innerText = item;
           logLines.prepend(newData);
         });
@@ -129,6 +129,18 @@ document.getElementById('btn-clear-log').onclick = () => {
     log.pop();
   }
   dirty = true;
+};
+
+document.getElementById('btn-set-custom-filter').onclick = () => {
+  const customFilter = customLogFilterInput.value.trim();
+  let matcher;
+  if (customFilter.startsWith('/') && customFilter.match(RE_REGEX_MATCHER)) {
+    const [, matchedRegex, matchedOpts] = customFilter.match(RE_REGEX_MATCHER);
+    matcher = new RegExp(matchedRegex, matchedOpts);
+  } else {
+    matcher = new RegExp(customFilter, RE_DEFAULT_OPTS);
+  }
+  regexLogPrefix = matcher;
 };
 
 setInterval(() => {

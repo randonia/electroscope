@@ -42,6 +42,19 @@
       border-top: 1px solid #83CBDE;
       border-left: 1px solid #83CBDE;
       border-right: 1px solid #83CBDE;
+      text-shadow: 1px 1px 1px black;
+    }
+    .info {
+      color: #BBBBBB;
+    }
+    .debug {
+      color: white;
+    }
+    .warn {
+      color: yellow;
+    }
+    .error {
+      color: #ff2700;
     }
     .p-user-input {
       margin: 0px;
@@ -66,13 +79,13 @@
           <label>Path to logfile</label>
           <input id="txt-selected-file" type="text" name="selected-file" class="txt-input wide"></input>
           <button id="btn-load-selected-file">Load</button>
+          <label class="txt-filter">Custom Log Format:</label>
+          <input id="txt-custom-log-filter" class="wide" type="text" name="text-filter" value="/^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}\.\d{2} <(error|info|debug|warn)> \[/m"></input>
+          <button id="btn-set-custom-filter">Set</button>
         </p>
       </div>
       <div id="div-item-filters" class="div-container c-filters">
-        <p class="p-user-input">
-          Filters:
-          <input id="txt-input-filter" type="text" name="text-filter"></input>
-        </p>
+        <label class="txt-filter">Filter:</label><input id="txt-input-filter" class="wide" type="text" name="text-filter"></input><br>
       </div>
     </div>
     <div id="div-row-log" class="div-row sort-col log">
