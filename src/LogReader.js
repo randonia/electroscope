@@ -1,5 +1,6 @@
 import { remote } from 'electron';
 import { Tail } from 'tail';
+import Config from './Config.js';
 
 const RE_DEFAULT_OPTS = 'g';
 const RE_REGEX_MATCHER = /\/(.+)\/([gmiy]*)/;
@@ -11,13 +12,33 @@ const filterLine = document.getElementById('txt-input-filter');
 const selectedFileInput = document.getElementById('txt-selected-file');
 const customLogFilterInput = document.getElementById('txt-custom-log-filter');
 
-let regexLogPrefix = /^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}\.\d{2} <(error|info|debug|warn)> \[/m;
+const SETTING_LOGPREFIX = 'logprefix';
+const SETTING_LOGFILE = 'logfile';
+
+let regexLogPrefix;
+
+function setPrefix(customFilter) {
+  let matcher;
+  if (customFilter.startsWith('/') && customFilter.match(RE_REGEX_MATCHER)) {
+    const [, matchedRegex, matchedOpts] = customFilter.match(RE_REGEX_MATCHER);
+    matcher = new RegExp(matchedRegex, matchedOpts);
+  } else {
+    matcher = new RegExp(customFilter, RE_DEFAULT_OPTS);
+  }
+  regexLogPrefix = matcher;
+  Config.set(SETTING_LOGPREFIX, customFilter);
+}
+
+const storedFilterValue = Config.get(SETTING_LOGPREFIX, '/^\\d{4}\\/\\d{2}\\/\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3} - (error|info|debug|warn): \\[/m');
+customLogFilterInput.value = storedFilterValue;
+setPrefix(storedFilterValue);
+
 let dirty = true;
 let tail;
 let pathToFile;
 
 // Set up a default path
-selectedFileInput.value = remote.app.getPath('userData');
+selectedFileInput.value = Config.get(SETTING_LOGFILE, remote.app.getPath('userData'));
 
 let lastAppend = Number.NEGATIVE_INFINITY;
 let currNode;
@@ -113,6 +134,7 @@ function setUpTail(path) {
     addDataToCurrNode(data);
     lastAppend = Date.now();
   });
+  Config.set(SETTING_LOGFILE, path);
 }
 
 document.getElementById('btn-load-selected-file').onclick = () => {
@@ -133,14 +155,7 @@ document.getElementById('btn-clear-log').onclick = () => {
 
 document.getElementById('btn-set-custom-filter').onclick = () => {
   const customFilter = customLogFilterInput.value.trim();
-  let matcher;
-  if (customFilter.startsWith('/') && customFilter.match(RE_REGEX_MATCHER)) {
-    const [, matchedRegex, matchedOpts] = customFilter.match(RE_REGEX_MATCHER);
-    matcher = new RegExp(matchedRegex, matchedOpts);
-  } else {
-    matcher = new RegExp(customFilter, RE_DEFAULT_OPTS);
-  }
-  regexLogPrefix = matcher;
+  setPrefix(customFilter);
 };
 
 setInterval(() => {
