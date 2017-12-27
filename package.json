@@ -46,7 +46,8 @@
   "dependencies": {
     "electron-compile": "^6.4.1",
     "electron-config": "^1.0.0",
-    "tail": "^1.2.1"
+    "tail": "^1.2.3",
+    "touch": "^3.1.0"
   },
   "devDependencies": {
     "babel-plugin-transform-async-to-generator": "^6.24.1",

@@ -1,5 +1,6 @@
 import { remote } from 'electron';
 import { Tail } from 'tail';
+import touch from 'touch';
 import Config from './Config.js';
 
 const RE_DEFAULT_OPTS = 'g';
@@ -36,6 +37,7 @@ setPrefix(storedFilterValue);
 let dirty = true;
 let tail;
 let pathToFile;
+let tailTouchInterval = NaN;
 
 // Set up a default path
 selectedFileInput.value = Config.get(SETTING_LOGFILE, remote.app.getPath('userData'));
@@ -125,15 +127,20 @@ function setUpTail(path) {
     while (log.length) {
       log.pop();
     }
+    clearInterval(tailTouchInterval);
   }
   if (path.length) {
     tail = new Tail(path);
+    tailTouchInterval = setInterval(() => {
+      touch(path);
+    }, 1000);
   }
   tail.on('line', (data) => {
     dirty = true;
     addDataToCurrNode(data);
     lastAppend = Date.now();
   });
+  tail.watch();
   Config.set(SETTING_LOGFILE, path);
 }
 
