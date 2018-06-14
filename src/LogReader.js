@@ -15,6 +15,7 @@ const customLogFilterInput = document.getElementById('txt-custom-log-filter');
 
 const SETTING_LOGPREFIX = 'logprefix';
 const SETTING_LOGFILE = 'logfile';
+const SETTING_THEME = 'theme';
 
 let regexLogPrefix;
 
@@ -176,12 +177,18 @@ document.getElementById('chk-reverse').onclick = () => {
   }
 };
 
-document.getElementById('chk-dark').onclick = () => {
-  if (document.getElementById('chk-dark').checked) {
+function applyThemeByConfig() {
+  const isDark = Config.get(SETTING_THEME);
+  if (isDark) {
     document.documentElement.classList.add('dark');
   } else {
     document.documentElement.classList.remove('dark');
   }
+}
+document.getElementById('chk-dark').onclick = () => {
+  const isDark = document.getElementById('chk-dark').checked;
+  Config.set(SETTING_THEME, (isDark) ? 'dark' : 'light');
+  applyThemeByConfig();
 };
 
 document.getElementById('btn-set-custom-filter').onclick = () => {
@@ -212,3 +219,5 @@ setInterval(() => {
     document.getElementById('bottom').scrollIntoView();
   }
 }, 250);
+
+applyThemeByConfig();
