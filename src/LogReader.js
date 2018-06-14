@@ -45,6 +45,10 @@ selectedFileInput.value = Config.get(SETTING_LOGFILE, remote.app.getPath('userDa
 let lastAppend = Number.NEGATIVE_INFINITY;
 let currNode;
 
+let reverse = true;
+let isAtBottom = false;
+let isAdvancedHidden = true;
+
 class Node {
   constructor(text) {
     this.data = [text];
@@ -109,7 +113,11 @@ function setFilters() {
           const [, logStyle] = item.match(regexLogPrefix);
           newData.setAttribute('class', `log-line ${logStyle}`);
           newData.innerText = item;
-          logLines.prepend(newData);
+          if (reverse) {
+            logLines.prepend(newData);
+          } else {
+            logLines.append(newData);
+          }
         });
     } catch (exception) {
       // A poor handling of the bad regex
@@ -160,12 +168,47 @@ document.getElementById('btn-clear-log').onclick = () => {
   dirty = true;
 };
 
+document.getElementById('chk-reverse').onclick = () => {
+  reverse = document.getElementById('chk-reverse').checked;
+  if (!reverse) {
+    // if toggled to not reverse, then set isAtBottom to true for scrolling
+    isAtBottom = true;
+  }
+};
+
+document.getElementById('chk-dark').onclick = () => {
+  if (document.getElementById('chk-dark').checked) {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+};
+
 document.getElementById('btn-set-custom-filter').onclick = () => {
   const customFilter = customLogFilterInput.value.trim();
   setPrefix(customFilter);
 };
 
+document.getElementById('show-advanced').onclick = () => {
+  if (isAdvancedHidden) {
+    document.getElementById('advanced-opts').classList.remove('hidden');
+    document.getElementById('show-advanced').innerHTML = 'Hide Advanced';
+    isAdvancedHidden = false;
+  } else {
+    document.getElementById('advanced-opts').classList.add('hidden');
+    document.getElementById('show-advanced').innerHTML = 'Show Advanced';
+    isAdvancedHidden = true;
+  }
+};
+
+window.onscroll = () => {
+  isAtBottom = ((window.innerHeight + window.scrollY) >= document.body.offsetHeight);
+};
+
 setInterval(() => {
   checkCurrNodeFinish();
   setFilters(log);
+  if (!reverse && isAtBottom) {
+    document.getElementById('bottom').scrollIntoView();
+  }
 }, 250);
