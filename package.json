@@ -28,7 +28,7 @@
         ]
       },
       "electronPackagerConfig": {
-        "icon": "resources/icon.ico"
+        "icon": "img/icon.ico"
       },
       "electronWinstallerConfig": {
         "name": "electron_logger"
