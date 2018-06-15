@@ -16,6 +16,7 @@ const customLogFilterInput = document.getElementById('txt-custom-log-filter');
 const SETTING_LOGPREFIX = 'logprefix';
 const SETTING_LOGFILE = 'logfile';
 const SETTING_THEME = 'theme';
+const SETTING_ISREVERSE = 'isreverse';
 
 let regexLogPrefix;
 
@@ -171,14 +172,24 @@ document.getElementById('btn-clear-log').onclick = () => {
 
 document.getElementById('chk-reverse').onclick = () => {
   reverse = document.getElementById('chk-reverse').checked;
+  Config.set(SETTING_ISREVERSE, reverse);
   if (!reverse) {
     // if toggled to not reverse, then set isAtBottom to true for scrolling
     isAtBottom = true;
   }
 };
 
+function applyOrderByConfig() {
+  reverse = Config.get(SETTING_ISREVERSE);
+  document.getElementById('chk-reverse').checked = reverse;
+  if (!reverse) {
+    isAtBottom = true;
+  }
+}
+
 function applyThemeByConfig() {
-  const isDark = Config.get(SETTING_THEME);
+  const isDark = Config.get(SETTING_THEME) === 'dark';
+  document.getElementById('chk-dark').checked = isDark;
   if (isDark) {
     document.documentElement.classList.add('dark');
   } else {
@@ -220,4 +231,7 @@ setInterval(() => {
   }
 }, 250);
 
-applyThemeByConfig();
+window.onload = () => {
+  applyThemeByConfig();
+  applyOrderByConfig();
+};
