@@ -22,6 +22,10 @@
     html.dark {
       background-color: #323544;
     }
+    button {
+      border-radius: 2px;
+      min-width: 70px;
+    }
     .option-row {
       margin-bottom: 5px;
     }
@@ -112,7 +116,7 @@
       <div class="option-row">
         <label class="desc">Path to Log File:</label>
         <input id="txt-selected-file" type="text" name="selected-file" class="txt-input wide"></input>
-        <button id="btn-load-selected-file">Load</button>
+        <button id="btn-load-selected-file">Go</button>
       </div>
       <div id="div-item-filters" class="option-row">
         <label class="desc">Filter:</label>
@@ -129,10 +133,12 @@
           <button id="btn-set-custom-filter">Set</button>
         </div>
         <div class="option-row">
-          <input type="checkbox" id="chk-reverse" class="checkbox" checked>Reverse Chronological</input>
+          <input type="checkbox" id="chk-reverse" class="checkbox"/>
+          <label for=chk-reverse>Reverse Chronological</label>
         </div>
         <div class="option-row">
-          <input type="checkbox" id="chk-dark" class="checkbox">Dark Theme</input>
+          <input type="checkbox" id="chk-dark" class="checkbox"/>
+          <label for=chk-dark>Dark Theme</label>
         </div>
       </div>
     </div>
