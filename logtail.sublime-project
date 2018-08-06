@@ -1,0 +1,11 @@
+{
+	"folders":
+	[
+		{
+      "name": "LogTail",
+			"path": ".",
+      "folder_exclude_patterns": ["node_modules", "out"],
+      "file_exclude_patterns": ["*.zip"]
+		}
+	]
+}
