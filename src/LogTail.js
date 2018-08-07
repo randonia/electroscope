@@ -1,17 +1,23 @@
 import { remote } from 'electron';
 import { Tail } from 'tail';
 import touch from 'touch';
-import Config from './Config.js';
+import Config, { CONFIG_POLLING, CONFIG_SORTMODE } from './Config';
+import LogReader, { EVENT_LINE } from './LogReader';
+import LogRenderer, { SORTING } from './LogRenderer';
 
 const RE_DEFAULT_OPTS = 'g';
 const RE_REGEX_MATCHER = /\/(.+)\/([gmiy]*)/;
 // Check at half second intervals
 const TIMER = 500;
 const log = [];
-const logLines = document.getElementById('div-log-lines');
+const logContainer = document.getElementById('log-container');
 const filterLine = document.getElementById('txt-input-filter');
 const selectedFileInput = document.getElementById('txt-selected-file');
 const customLogFilterInput = document.getElementById('txt-custom-log-filter');
+const DOM_BUTTON_LOADFILE = document.getElementById('btn-load-selected-file');
+const DOM_CHECKBOX_SORTING = document.getElementById('chk-reverse');
+const DOM_CHECKBOX_POLLING = document.getElementById('chk-polling');
+const DOM_BUTTON_CLEARLOG = document.getElementById('btn-clear-log');
 
 const SETTING_LOGPREFIX = 'logprefix';
 const SETTING_LOGFILE = 'logfile';
@@ -50,6 +56,9 @@ let currNode;
 let reverse = true;
 let isAtBottom = false;
 let isAdvancedHidden = true;
+
+let reader;
+let renderer;
 
 class Node {
   constructor(text) {
@@ -154,30 +163,55 @@ function setUpTail(path) {
   Config.set(SETTING_LOGFILE, path);
 }
 
-document.getElementById('btn-load-selected-file').onclick = () => {
+function setUpTail2(filePath) {
+  // TODO: Make these singletons 
+  reader = new LogReader(filePath);
+  renderer = new LogRenderer(logContainer);
+  reader.on(EVENT_LINE, line => renderer.onLine(line));
+}
+
+DOM_BUTTON_LOADFILE.onclick = () => {
   pathToFile = selectedFileInput.value.trim();
-  setUpTail(pathToFile);
+  setUpTail2(pathToFile);
+  Config.set(SETTING_LOGFILE, pathToFile);
+  DOM_BUTTON_LOADFILE.disabled = true;
 };
 
 document.getElementById('txt-input-filter').onkeyup = () => {
   dirty = true;
 };
 
-document.getElementById('btn-clear-log').onclick = () => {
-  while (log.length) {
-    log.pop();
+DOM_BUTTON_CLEARLOG.onclick = () => {
+  if (renderer) {
+    renderer.clear();
   }
-  dirty = true;
 };
 
-document.getElementById('chk-reverse').onclick = () => {
-  reverse = document.getElementById('chk-reverse').checked;
-  Config.set(SETTING_ISREVERSE, reverse);
-  if (!reverse) {
-    // if toggled to not reverse, then set isAtBottom to true for scrolling
-    isAtBottom = true;
+DOM_CHECKBOX_POLLING.onclick = () => {
+  const shouldPoll = DOM_CHECKBOX_POLLING.checked;
+  Config.set(CONFIG_POLLING, shouldPoll);
+  if (reader) {
+    reader.polling = shouldPoll;
   }
 };
+
+DOM_CHECKBOX_SORTING.onclick = () => {
+  const setReverse = document.getElementById('chk-reverse').checked;
+  const sortMode = (setReverse) ? SORTING.REVERSE : SORTING.CHRONO;
+  Config.set(CONFIG_SORTMODE, sortMode);
+  if (renderer) {
+    renderer.sortMode = sortMode;
+  }
+};
+
+// document.getElementById('chk-reverse').onclick = () => {
+//   reverse = document.getElementById('chk-reverse').checked;
+//   Config.set(SETTING_ISREVERSE, reverse);
+//   if (!reverse) {
+//     // if toggled to not reverse, then set isAtBottom to true for scrolling
+//     isAtBottom = true;
+//   }
+// };
 
 function applyOrderByConfig() {
   reverse = Config.get(SETTING_ISREVERSE);
@@ -224,15 +258,16 @@ window.onscroll = () => {
   isAtBottom = ((window.innerHeight + window.scrollY) >= document.body.offsetHeight);
 };
 
-setInterval(() => {
-  checkCurrNodeFinish();
-  setFilters(log);
-  if (!reverse && isAtBottom) {
-    document.getElementById('bottom').scrollIntoView();
-  }
-}, 250);
+// setInterval(() => {
+//   checkCurrNodeFinish();
+//   setFilters(log);
+//   if (!reverse && isAtBottom) {
+//     document.getElementById('bottom').scrollIntoView();
+//   }
+// }, 250);
 
 window.onload = () => {
   applyThemeByConfig();
   applyOrderByConfig();
+  DOM_CHECKBOX_SORTING.checked = Config.get(CONFIG_SORTMODE) === SORTING.REVERSE;
 };

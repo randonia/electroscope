@@ -1,0 +1,42 @@
+/**
+
+Dark Colors
+  Background: #323544;
+  Light Background: #304B52;
+  Text: #eeeeee;
+  Log Background: #25272E;
+  Alt Log Background: #2d2f38;
+**/
+
+html {
+  background-color: #323544;
+}
+
+.hidden {
+  display: none;
+}
+
+.logs-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.log-line {
+  background-color: #25272E;
+  border: 0px;
+  box-shadow: inset 0px 0px 0px 1px rgba(255,255,255,0.2);
+  box-sizing: border-box;
+  width: calc(100%);
+}
+
+.log-line:hover {
+  box-shadow: inset 0px 0px 0px 1px #eeeeee;
+}
+
+.log-alt {
+  background-color: #2d2f38;
+}
+
+.reverse {
+  flex-direction: column-reverse;
+}

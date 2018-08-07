@@ -66,11 +66,11 @@
       border-left: 1px solid #83CBDE;
       border-right: 1px solid #83CBDE;
     }
-    .dark .log-line {
+/*    .dark .log-line {
       border-top: 1px solid #333;
       border-left: 1px solid #333;
       border-right: 1px solid #333;
-    }
+    }*/
     .info {
       color: #BBBBBB;
     }
@@ -106,17 +106,17 @@
     .show-advanced:hover {
       cursor: pointer;
     }
-    .hidden {
-      display: none;
-    }
     </style>
+    <link rel="stylesheet" type="text/css" href="styles.css">
   </head>
   <body>
     <div id="div-row-first" class="div-row sort-col first">
       <div class="option-row">
         <label class="desc">Path to Log File:</label>
         <input id="txt-selected-file" type="text" name="selected-file" class="txt-input wide"></input>
-        <button id="btn-load-selected-file">Go</button>
+        <button id="btn-load-selected-file">Start Watching</button>
+        <label>Polling?</label>
+        <input type="checkbox" id="chk-polling"/>
       </div>
       <div id="div-item-filters" class="option-row">
         <label class="desc">Filter:</label>
@@ -142,9 +142,8 @@
         </div>
       </div>
     </div>
-    <div id="div-row-log" class="div-row sort-col log">
-      <div id="div-log-lines" class="div-log-lines"></div>
-      <div id="bottom"></div>
+    <div id="log-container">
+      <!-- <div id="bottom"></div> Took this out during refactor TODO: Put this back in -->
     </div>
   </body>
 <script type="text/javascript">
