@@ -1,4 +1,3 @@
-import { remote } from 'electron';
 import { EventEmitter } from 'events';
 import { Tail } from 'tail';
 import touch from 'touch';
@@ -24,15 +23,6 @@ export default class LogReader extends EventEmitter {
     }
     this._makeTailObj();
     this.polling = Config.get(CONFIG_POLLING) || false;
-
-    // DEBUG
-    for (let count = 0; count < 15; count++) {
-      setTimeout(() => {
-        console.info('FIRING OFF DEBUG LOG EVENT');
-        this.emit(EVENT_LINE, { line: `TEST LOG ${count}` });
-      }, 100 + (25 * count))
-    }
-
   }
   _makeTailObj() {
     if (!this._logPath) {

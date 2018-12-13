@@ -4,6 +4,9 @@ class NodeHandler {
   get element() {
     return this._element;
   }
+  get line() {
+    return this._line;
+  }
   set isAlt(value) {
     this._alt = value;
     this._updateTheme();
@@ -35,6 +38,9 @@ export const SORTING = {
   REVERSE: 'reverse-chronological',
 };
 
+const RE_REGEX_MATCHER = /\/(.+)\/([gmiy]*)/;
+const RE_DEFAULT_OPTS = 'i';
+
 export default class LogRenderer {
   set sortMode(value) {
     switch (value) {
@@ -47,6 +53,10 @@ export default class LogRenderer {
       default:
         console.error('Invalid sorting mode passed, mode=%s', value);
     }
+  }
+  set filter(value) {
+    this._filter = value;
+    this._refreshDOM();
   }
   constructor(dom) {
     if (!dom || !(dom instanceof HTMLElement)) {
@@ -70,9 +80,33 @@ export default class LogRenderer {
     this._refreshDOM();
   }
   _refreshDOM() {
+    let regex;
+
+    if (!this._filter || !this._filter.length) {
+      // show all
+      regex = /.+/;
+    } else {
+      const filter = this._filter;
+      // _filter is a regex string
+      if (filter.startsWith('/')) {
+        // Handle safely parsing incomplete regex
+        if (filter.match(RE_REGEX_MATCHER)) {
+          const [, matchedRegex, matchedOpts] = filter.match(RE_REGEX_MATCHER);
+          regex = new RegExp(matchedRegex, matchedOpts);
+        } else {
+          // HANDLE INCOMPLETE OR STARTS_WITH /
+        }
+      } else {
+        regex = new RegExp(filter, RE_DEFAULT_OPTS);
+      }
+    }
     this._lines.forEach((nh) => {
       // Test the filter
-      nh.show();
+      if (regex.test(nh.line)) {
+        nh.show();
+      } else {
+        nh.hide();
+      }
     });
   }
   clear() {

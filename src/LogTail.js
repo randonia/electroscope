@@ -11,9 +11,10 @@ const RE_REGEX_MATCHER = /\/(.+)\/([gmiy]*)/;
 const TIMER = 500;
 const log = [];
 const logContainer = document.getElementById('log-container');
-const filterLine = document.getElementById('txt-input-filter');
+// const filterLine = document.getElementById('txt-input-filter');
 const selectedFileInput = document.getElementById('txt-selected-file');
 const customLogFilterInput = document.getElementById('txt-custom-log-filter');
+const DOM_INPUT_FILTER = document.getElementById('txt-input-filter');
 const DOM_BUTTON_LOADFILE = document.getElementById('btn-load-selected-file');
 const DOM_CHECKBOX_SORTING = document.getElementById('chk-reverse');
 const DOM_CHECKBOX_POLLING = document.getElementById('chk-polling');
@@ -202,6 +203,16 @@ DOM_CHECKBOX_SORTING.onclick = () => {
   if (renderer) {
     renderer.sortMode = sortMode;
   }
+};
+
+let _applyFilterDelayId;
+DOM_INPUT_FILTER.onkeyup = () => {
+  if (_applyFilterDelayId) {
+    clearTimeout(_applyFilterDelayId);
+  }
+  _applyFilterDelayId = setTimeout(() => {
+    renderer.filter = DOM_INPUT_FILTER.value;
+  }, 250);
 };
 
 // document.getElementById('chk-reverse').onclick = () => {
