@@ -1,6 +1,7 @@
+import readLastLines from 'read-last-lines';
+import touch from 'touch';
 import { EventEmitter } from 'events';
 import { Tail } from 'tail';
-import touch from 'touch';
 
 import Config, { CONFIG_POLLING } from './Config';
 
@@ -23,6 +24,15 @@ export default class LogReader extends EventEmitter {
     }
     this._makeTailObj();
     this.polling = Config.get(CONFIG_POLLING) || false;
+
+    readLastLines.read(logPath, 25).then((lines) => {
+      lines.split('\n').forEach((line) => {
+        const trimmed = line.trim();
+        if (trimmed && trimmed.length) {
+          this.emit(EVENT_LINE, { line });
+        }
+      });
+    });
   }
   _makeTailObj() {
     if (!this._logPath) {
@@ -34,7 +44,6 @@ export default class LogReader extends EventEmitter {
     });
     tailReader.watch();
 
-    // TODO: do the interval for touching 
     this._tail = tailReader;
   }
   _startPolling() {

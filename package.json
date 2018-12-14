@@ -49,6 +49,7 @@
     "electron-compile": "^6.4.3",
     "electron-config": "^1.0.0",
     "escape-html": "^1.0.3",
+    "read-last-lines": "^1.6.0",
     "tail": "^1.2.3",
     "touch": "^3.1.0"
   },
