@@ -1,3 +1,4 @@
+import EscapeHTML from 'escape-html';
 import Config, { CONFIG_SORTMODE } from './Config';
 
 class NodeHandler {
@@ -15,7 +16,7 @@ class NodeHandler {
     this._line = line;
     const domElement = document.createElement('div');
     domElement.classList.add('log-line');
-    domElement.innerText = line;
+    domElement.innerHTML = EscapeHTML(line);
     this._element = domElement;
   }
   hide() {
@@ -23,6 +24,15 @@ class NodeHandler {
   }
   show() {
     this._element.classList.remove('hidden');
+  }
+  highlight(matcher) {
+    const cleanLine = EscapeHTML(this._line);
+    if (!matcher) {
+      // return to non-styled view
+      this._element.innerHTML = cleanLine;
+      return;
+    }
+    this._element.innerHTML = cleanLine.replace(matcher, '<span class="log-highlight">$&</span>');
   }
   _updateTheme() {
     if (this._alt) {
@@ -38,7 +48,7 @@ export const SORTING = {
   REVERSE: 'reverse-chronological',
 };
 
-const RE_REGEX_MATCHER = /\/(.+)\/([gmiy]*)/;
+const RE_REGEX_TEST_IS_REGEX = /\/(.+)\/([gmiy]*)/;
 const RE_DEFAULT_OPTS = 'i';
 
 export default class LogRenderer {
@@ -56,6 +66,10 @@ export default class LogRenderer {
   }
   set filter(value) {
     this._filter = value;
+    this._refreshDOM();
+  }
+  set highlight(value) {
+    this._highlight = value;
     this._refreshDOM();
   }
   constructor(dom) {
@@ -80,33 +94,51 @@ export default class LogRenderer {
     this._refreshDOM();
   }
   _refreshDOM() {
-    let regex;
+    let matcherRegex;
+    let highlightRegEx;
 
     if (!this._filter || !this._filter.length) {
       // show all
-      regex = /.+/;
+      matcherRegex = /.+/;
     } else {
       const filter = this._filter;
-      // _filter is a regex string
+      // _filter is a matcherRegex string
       if (filter.startsWith('/')) {
-        // Handle safely parsing incomplete regex
-        if (filter.match(RE_REGEX_MATCHER)) {
-          const [, matchedRegex, matchedOpts] = filter.match(RE_REGEX_MATCHER);
-          regex = new RegExp(matchedRegex, matchedOpts);
+        // Handle safely parsing incomplete matcherRegex
+        if (filter.match(RE_REGEX_TEST_IS_REGEX)) {
+          const [, matchedRegex, matchedOpts] = filter.match(RE_REGEX_TEST_IS_REGEX);
+          matcherRegex = new RegExp(matchedRegex, matchedOpts);
         } else {
           // HANDLE INCOMPLETE OR STARTS_WITH /
         }
       } else {
-        regex = new RegExp(filter, RE_DEFAULT_OPTS);
+        matcherRegex = new RegExp(filter, RE_DEFAULT_OPTS);
+      }
+    }
+
+    // Apply a highlight if it exists
+    if (this._highlight && this._highlight.length) {
+      const highlighter = this._highlight;
+      if (highlighter.startsWith('/')) {
+        // Make sure it's valid regex
+        if (highlighter.match(RE_REGEX_TEST_IS_REGEX)) {
+          const [, matchedRegex, matchedOpts] = highlighter.match(RE_REGEX_TEST_IS_REGEX);
+          highlightRegEx = new RegExp(matchedRegex, matchedOpts);
+        } else {
+          // Incomplete RegEx is ignored
+        }
+      } else {
+        highlightRegEx = new RegExp(highlighter, RE_DEFAULT_OPTS);
       }
     }
     this._lines.forEach((nh) => {
       // Test the filter
-      if (regex.test(nh.line)) {
+      if (matcherRegex.test(nh.line)) {
         nh.show();
       } else {
         nh.hide();
       }
+      nh.highlight(highlightRegEx);
     });
   }
   clear() {

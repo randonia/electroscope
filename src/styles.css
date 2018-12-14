@@ -37,6 +37,12 @@ html {
   background-color: #2d2f38;
 }
 
+.log-highlight {
+  background-color: rgba(255, 235, 0, 0.15);
+  border-radius: 3px;
+  box-shadow: inset 0px 0px 0px 1px rgba(255, 235, 0, 0.78);
+}
+
 .reverse {
   flex-direction: column-reverse;
 }

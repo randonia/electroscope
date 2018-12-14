@@ -11,14 +11,17 @@ const RE_REGEX_MATCHER = /\/(.+)\/([gmiy]*)/;
 const TIMER = 500;
 const log = [];
 const logContainer = document.getElementById('log-container');
-// const filterLine = document.getElementById('txt-input-filter');
 const selectedFileInput = document.getElementById('txt-selected-file');
 const customLogFilterInput = document.getElementById('txt-custom-log-filter');
-const DOM_INPUT_FILTER = document.getElementById('txt-input-filter');
-const DOM_BUTTON_LOADFILE = document.getElementById('btn-load-selected-file');
-const DOM_CHECKBOX_SORTING = document.getElementById('chk-reverse');
-const DOM_CHECKBOX_POLLING = document.getElementById('chk-polling');
+
 const DOM_BUTTON_CLEARLOG = document.getElementById('btn-clear-log');
+const DOM_BUTTON_LOADFILE = document.getElementById('btn-load-selected-file');
+const DOM_CHECKBOX_POLLING = document.getElementById('chk-polling');
+const DOM_CHECKBOX_SORTING = document.getElementById('chk-reverse');
+const DOM_CHECKBOX_THEME = document.getElementById('chk-dark');
+const DOM_INPUT_FILTER = document.getElementById('txt-input-filter');
+const DOM_INPUT_HIGHLIGHT = document.getElementById('txt-input-highlight');
+const DOM_INPUT_PARSE_FILTER = document.getElementById('btn-set-custom-filter');
 
 const SETTING_LOGPREFIX = 'logprefix';
 const SETTING_LOGFILE = 'logfile';
@@ -178,10 +181,6 @@ DOM_BUTTON_LOADFILE.onclick = () => {
   DOM_BUTTON_LOADFILE.disabled = true;
 };
 
-document.getElementById('txt-input-filter').onkeyup = () => {
-  dirty = true;
-};
-
 DOM_BUTTON_CLEARLOG.onclick = () => {
   if (renderer) {
     renderer.clear();
@@ -196,7 +195,7 @@ DOM_CHECKBOX_POLLING.onclick = () => {
   }
 };
 
-DOM_CHECKBOX_SORTING.onclick = () => {
+DOM_CHECKBOX_SORTING.onchange = () => {
   const setReverse = document.getElementById('chk-reverse').checked;
   const sortMode = (setReverse) ? SORTING.REVERSE : SORTING.CHRONO;
   Config.set(CONFIG_SORTMODE, sortMode);
@@ -215,14 +214,15 @@ DOM_INPUT_FILTER.onkeyup = () => {
   }, 250);
 };
 
-// document.getElementById('chk-reverse').onclick = () => {
-//   reverse = document.getElementById('chk-reverse').checked;
-//   Config.set(SETTING_ISREVERSE, reverse);
-//   if (!reverse) {
-//     // if toggled to not reverse, then set isAtBottom to true for scrolling
-//     isAtBottom = true;
-//   }
-// };
+let _applyHighlightTimeoutId;
+DOM_INPUT_HIGHLIGHT.onkeyup = () => {
+  if (_applyHighlightTimeoutId) {
+    clearTimeout(_applyHighlightTimeoutId);
+  }
+  _applyHighlightTimeoutId = setTimeout(() => {
+    renderer.highlight = DOM_INPUT_HIGHLIGHT.value;
+  }, 250);
+};
 
 function applyOrderByConfig() {
   reverse = Config.get(SETTING_ISREVERSE);
@@ -242,13 +242,13 @@ function applyThemeByConfig() {
   }
 }
 
-document.getElementById('chk-dark').onclick = () => {
+DOM_CHECKBOX_THEME.onchange = () => {
   const isDark = document.getElementById('chk-dark').checked;
   Config.set(SETTING_THEME, (isDark) ? 'dark' : 'light');
   applyThemeByConfig();
 };
 
-document.getElementById('btn-set-custom-filter').onclick = () => {
+DOM_INPUT_PARSE_FILTER.onchange = () => {
   const customFilter = customLogFilterInput.value.trim();
   setPrefix(customFilter);
 };
@@ -269,13 +269,13 @@ window.onscroll = () => {
   isAtBottom = ((window.innerHeight + window.scrollY) >= document.body.offsetHeight);
 };
 
-// setInterval(() => {
-//   checkCurrNodeFinish();
-//   setFilters(log);
-//   if (!reverse && isAtBottom) {
-//     document.getElementById('bottom').scrollIntoView();
-//   }
-// }, 250);
+setInterval(() => {
+  checkCurrNodeFinish();
+  setFilters(log);
+  if (!reverse && isAtBottom) {
+    document.getElementById('bottom').scrollIntoView();
+  }
+}, 250);
 
 window.onload = () => {
   applyThemeByConfig();
