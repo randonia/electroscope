@@ -18,6 +18,7 @@ class NodeHandler {
     domElement.classList.add('log-line');
     domElement.innerHTML = EscapeHTML(line);
     this._element = domElement;
+    this._processContents();
   }
   hide() {
     this._element.classList.add('hidden');
@@ -33,6 +34,20 @@ class NodeHandler {
       return;
     }
     this._element.innerHTML = cleanLine.replace(matcher, '<span class="log-highlight">$&</span>');
+  }
+  _processContents() {
+    if (/- debug:/.test(this.line)) {
+      this._element.classList.add('level-debug');
+    }
+    if (/- info:/.test(this.line)) {
+      this._element.classList.add('level-info');
+    }
+    if (/- warn:/.test(this.line)) {
+      this._element.classList.add('level-warn');
+    }
+    if (/- error:/.test(this.line)) {
+      this._element.classList.add('level-error');
+    }
   }
   _updateTheme() {
     if (this._alt) {

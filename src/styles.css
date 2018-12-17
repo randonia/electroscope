@@ -10,6 +10,7 @@ Dark Colors
 
 html {
   background-color: #323544;
+  color: #eeeeee;
 }
 
 .hidden {
@@ -45,4 +46,17 @@ html {
 
 .reverse {
   flex-direction: column-reverse;
+}
+
+.level-info {
+  color: #BBBBBB;
+}
+.level-debug {
+  color: #eee;
+}
+.level-warn {
+  color: yellow;
+}
+.level-error {
+  color: #ff2700;
 }
