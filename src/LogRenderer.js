@@ -16,7 +16,6 @@ class NodeHandler {
     this._line = line;
     const domElement = document.createElement('div');
     domElement.classList.add('log-line');
-    domElement.innerHTML = EscapeHTML(line);
     this._element = domElement;
     this._processContents();
   }
@@ -48,6 +47,7 @@ class NodeHandler {
     if (/- error:/.test(this.line)) {
       this._element.classList.add('level-error');
     }
+    this._element.innerHTML = this._line.replace(/\n/g, '<br>\n');
   }
   _updateTheme() {
     if (this._alt) {
@@ -64,7 +64,7 @@ export const SORTING = {
 };
 
 const RE_REGEX_TEST_IS_REGEX = /\/(.+)\/([gmiy]*)/;
-const RE_DEFAULT_OPTS = 'i';
+const RE_DEFAULT_OPTS = 'ig';
 
 export default class LogRenderer {
   set sortMode(value) {
@@ -102,6 +102,9 @@ export default class LogRenderer {
   }
   onLine(payload) {
     const { line } = payload;
+    if (!line.trim().length) {
+      return;
+    }
     const nh = new NodeHandler(line);
     this._container.appendChild(nh.element);
     this._lines.push(nh);

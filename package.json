@@ -1,7 +1,7 @@
 {
   "name": "LogTail",
   "productName": "LogTail",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Basic electron app to tail a file that lets you filter output. Useful if you have one logfile and lots of different logwriters.",
   "main": "src/index.js",
   "scripts": {
@@ -51,6 +51,7 @@
     "electron-config": "^1.0.0",
     "escape-html": "^1.0.3",
     "read-last-lines": "^1.6.0",
+    "regex-parser": "^2.2.9",
     "tail": "^1.2.3",
     "touch": "^3.1.0"
   },

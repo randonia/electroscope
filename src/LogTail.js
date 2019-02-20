@@ -25,8 +25,13 @@ const SETTING_ISREVERSE = 'isreverse';
 let _applyFilterDelayId;
 let _applyHighlightTimeoutId;
 
+let reader;
+
 function setPrefix(customFilter) {
   Config.set(SETTING_LOGPREFIX, customFilter);
+  if (reader) {
+    reader.prefix = customFilter;
+  }
 }
 
 const storedFilterValue = Config.get(SETTING_LOGPREFIX, '/^\\d{4}\\/\\d{2}\\/\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3} - (error|info|debug|warn): \\[/m');
@@ -41,11 +46,11 @@ selectedFileInput.value = Config.get(SETTING_LOGFILE, remote.app.getPath('userDa
 let reverse = true;
 let isAdvancedHidden = true;
 
-let reader;
 let renderer;
 
 function addLogTailer(filePath) {
   reader = new LogReader(filePath);
+  reader.prefix = storedFilterValue;
   renderer = new LogRenderer(logContainer);
   reader.on(EVENT_LINE, line => renderer.onLine(line));
 }
