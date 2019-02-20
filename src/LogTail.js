@@ -3,6 +3,8 @@ import Config, { CONFIG_POLLING, CONFIG_SORTMODE } from './Config';
 import LogReader, { EVENT_LINE } from './LogReader';
 import LogRenderer, { SORTING } from './LogRenderer';
 
+const { name, version } = require('../package.json');
+
 const logContainer = document.getElementById('log-container');
 const selectedFileInput = document.getElementById('txt-selected-file');
 const customLogFilterInput = document.getElementById('txt-custom-log-filter');
@@ -16,6 +18,7 @@ const DOM_CHECKBOX_THEME = document.getElementById('chk-dark');
 const DOM_INPUT_FILTER = document.getElementById('txt-input-filter');
 const DOM_INPUT_HIGHLIGHT = document.getElementById('txt-input-highlight');
 const DOM_INPUT_PARSE_FILTER = document.getElementById('btn-set-custom-filter');
+const DOM_FOOTER = document.getElementById('div-footer');
 
 const SETTING_LOGPREFIX = 'logprefix';
 const SETTING_LOGFILE = 'logfile';
@@ -147,4 +150,5 @@ window.onload = () => {
   applyThemeByConfig();
   applyOrderByConfig();
   DOM_CHECKBOX_SORTING.checked = Config.get(CONFIG_SORTMODE) === SORTING.REVERSE;
+  DOM_FOOTER.innerText = `${name}-${version}`;
 };

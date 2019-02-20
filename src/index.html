@@ -17,6 +17,8 @@
       display: inline-block;
       font-family: Tahoma;
       font-size: 14px;
+      height: calc(100%);
+      width: calc(100%);
     }
     html.dark {
       background-color: #323544;
@@ -24,6 +26,11 @@
     button {
       border-radius: 2px;
       min-width: 70px;
+    }
+    body {
+      height: calc(83%);
+      width: calc(100%);
+      margin: 0;
     }
     .option-row {
       margin-bottom: 5px;
@@ -65,11 +72,6 @@
       border-left: 1px solid #83CBDE;
       border-right: 1px solid #83CBDE;
     }
-/*    .dark .log-line {
-      border-top: 1px solid #333;
-      border-left: 1px solid #333;
-      border-right: 1px solid #333;
-    }*/
     .txt-input {
       display: inline-block;
       width: 100px;
@@ -90,48 +92,61 @@
     .show-advanced:hover {
       cursor: pointer;
     }
+    .container {
+      margin-left: 8px;
+      margin-right: 8px;
+      margin-top: 6px;
+      height: calc(100%);
+      width: calc(100% - 16px);
+    }
+    .footer {
+      background-color: #25272E;
+      text-align: right;
+      padding-right: 6px;
+    }
     </style>
     <link rel="stylesheet" type="text/css" href="styles.css">
   </head>
   <body>
-    <div id="div-row-first" class="div-row sort-col first">
-      <div class="option-row">
-        <label class="desc">Path to Log File:</label>
-        <input id="txt-selected-file" type="text" name="selected-file" class="txt-input wide"></input>
-        <button id="btn-load-selected-file">Start Watching</button>
-        <label>Polling?</label>
-        <input type="checkbox" id="chk-polling"/>
-      </div>
-      <div id="div-item-filters" class="option-row">
-        <label class="desc">Filter:</label>
-        <input id="txt-input-filter" class="wide" type="text" name="text-filter"></input>
-      </div>
-      <div id="div-item-highlight" class="option-row">
-        <label class="desc">Highlight:</label>
-        <input id="txt-input-highlight" class="wide" type="text" name="text-highlight"></input>
-      </div>
-      <div class="option-row">
-        Log <button id="btn-clear-log">Clear Log</button>
-        <span id="show-advanced" class="show-advanced">Show Advanced</span>
-      </div>
-      <div id="advanced-opts" class="advanced hidden">
+    <div class="container">
+      <div id="div-row-first" class="div-row sort-col first">
         <div class="option-row">
-          <label class="desc">Custom Log Format: </label>
-          <input id="txt-custom-log-filter" class="wide" type="text" name="text-filter"></input>
-          <button id="btn-set-custom-filter">Set</button>
+          <label class="desc">Path to Log File:</label>
+          <input id="txt-selected-file" type="text" name="selected-file" class="txt-input wide"></input>
+          <button id="btn-load-selected-file">Start Watching</button>
+          <label>Polling?</label>
+          <input type="checkbox" id="chk-polling"/>
+        </div>
+        <div id="div-item-filters" class="option-row">
+          <label class="desc">Filter:</label>
+          <input id="txt-input-filter" class="wide" type="text" name="text-filter"></input>
+        </div>
+        <div id="div-item-highlight" class="option-row">
+          <label class="desc">Highlight:</label>
+          <input id="txt-input-highlight" class="wide" type="text" name="text-highlight"></input>
         </div>
         <div class="option-row">
-          <input type="checkbox" id="chk-reverse" class="checkbox"/>
-          <label for=chk-reverse>Reverse Chronological</label>
+          Log <button id="btn-clear-log">Clear Log</button>
+          <span id="show-advanced" class="show-advanced">Show Advanced</span>
         </div>
-        <div class="option-row">
-          <input type="checkbox" id="chk-dark" class="checkbox"/>
-          <label for=chk-dark>Dark Theme</label>
+        <div id="advanced-opts" class="advanced hidden">
+          <div class="option-row">
+            <label class="desc">Custom Log Format: </label>
+            <input id="txt-custom-log-filter" class="wide" type="text" name="text-filter"></input>
+            <button id="btn-set-custom-filter">Set</button>
+          </div>
+          <div class="option-row">
+            <input type="checkbox" id="chk-reverse" class="checkbox"/>
+            <label for=chk-reverse>Reverse Chronological</label>
+          </div>
+          <div class="option-row">
+            <input type="checkbox" id="chk-dark" class="checkbox"/>
+            <label for=chk-dark>Dark Theme</label>
+          </div>
         </div>
       </div>
-    </div>
-    <div id="log-container">
-      <!-- <div id="bottom"></div> Took this out during refactor TODO: Put this back in -->
+      <div id="log-container" class="log-container"></div>
+      <div id="div-footer" class="footer">Hello Footer</div>
     </div>
   </body>
 <script type="text/javascript">
